@@ -1,0 +1,9 @@
+Baza przedstawia prace placówki medycznej
+Zawiera ona listę lekarzy wraz z ich specjalizacjami, pacjentów wraz z ich uczuleniami, adresami zamieszkania wymienionych a także dane o lekach i składnikach które mogą uczulać pacjentów.
+Do bazy można dodawać wizyty do których można dodawać recepty
+trigger blokuje możliwość dodawania recepty na lek na który pacjent jest uczulony
+drugi trigger uniemożliwia usunięcie specjalizacji lekarzom - każdy lekarz powinien je mieć
+Baza zawiera 3 procedury
+1 dodaje lekarza i sprawdza czy nie jest już taki dodany oraz czy jego pensja nie jest ujemna
+2 i 3 modyfikują pensję lekarzy - jedna kwotowo a druga procentowo
+jeśli doda się opcjonalny argument do 2 lub 3 można podać max pensję jaką lekarz może mieć przed podwyżką

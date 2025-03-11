@@ -1,0 +1,477 @@
+SET SERVEROUTPUT ON
+
+ALTER TABLE Lek_skladnik
+    DROP CONSTRAINT Lek_skladnik;
+
+ALTER TABLE Lek_skladnik
+    DROP CONSTRAINT Lek_skladnik_Lek;
+
+ALTER TABLE Lekarze
+    DROP CONSTRAINT Lekarze_Adres;
+
+ALTER TABLE Pacjent
+    DROP CONSTRAINT Pacjent_Adres;
+
+ALTER TABLE Specjalizacje_lekarza
+    DROP CONSTRAINT Specjalizacje_lekarza;
+
+ALTER TABLE Specjalizacje_lekarza
+    DROP CONSTRAINT Specjalizacje_lekarza_Lekarze;
+
+ALTER TABLE Uczulenia_pacjenta
+    DROP CONSTRAINT Uczulenia_Skladnik_uczulajacy;
+
+ALTER TABLE Uczulenia_pacjenta
+    DROP CONSTRAINT Uczulenia_pacjenta_Pacjent;
+
+ALTER TABLE Wizyta
+    DROP CONSTRAINT Wizyta_Pacjent;
+
+ALTER TABLE Wizyta
+    DROP CONSTRAINT Wizyta_Specjalizacje_lekarza;
+
+ALTER TABLE eRecepta
+    DROP CONSTRAINT eRecepta_Lek;
+
+ALTER TABLE eRecepta
+    DROP CONSTRAINT eRecepta_Wizyta;
+
+DROP TABLE Adres;
+
+DROP TABLE Lek;
+
+DROP TABLE Lek_skladnik;
+
+DROP TABLE Lekarze;
+
+DROP TABLE Pacjent;
+
+DROP TABLE Skladnik_uczulajacy;
+
+DROP TABLE Specjalizacje;
+
+DROP TABLE Specjalizacje_lekarza;
+
+DROP TABLE Uczulenia_pacjenta;
+
+DROP TABLE Wizyta;
+
+DROP TABLE eRecepta;
+
+-- tables
+-- Table: Adres
+CREATE TABLE Adres (
+    ID integer  NOT NULL,
+    miejscowosc varchar2(30)  NOT NULL,
+    ulica varchar2(30)  NOT NULL,
+    numer_domu varchar2(4)  NOT NULL,
+    numer_mieszkania varchar2(4)  NULL,
+    CONSTRAINT Adres_pk PRIMARY KEY (ID)
+) ;
+
+-- Table: Lek
+CREATE TABLE Lek (
+    ID integer  NOT NULL,
+    nazwa varchar2(30)  NOT NULL,
+    opis varchar2(50)  NOT NULL,
+    CONSTRAINT Lek_pk PRIMARY KEY (ID)
+) ;
+
+-- Table: Lek_skladnik
+CREATE TABLE Lek_skladnik (
+    Skladnik_uczulajacy_ID integer  NOT NULL,
+    Lek_ID integer  NOT NULL,
+    CONSTRAINT Lek_skladnik_pk PRIMARY KEY (Skladnik_uczulajacy_ID,Lek_ID)
+) ;
+
+-- Table: Lekarze
+CREATE TABLE Lekarze (
+    ID integer  NOT NULL,
+    imie varchar2(30)  NOT NULL,
+    nazwisko varchar2(30)  NOT NULL,
+    Adres_ID integer  NOT NULL,
+    pensja integer NOT NULL,
+    CONSTRAINT Lekarze_pk PRIMARY KEY (ID)
+) ;
+
+-- Table: Pacjent
+CREATE TABLE Pacjent (
+    ID integer  NOT NULL,
+    imie varchar2(30)  NOT NULL,
+    nazwisko varchar2(30)  NOT NULL,
+    PESEL varchar2(11)  NOT NULL,
+    Adres_ID integer  NOT NULL,
+    CONSTRAINT Pacjent_pk PRIMARY KEY (ID)
+) ;
+
+-- Table: Skladnik_uczulajacy
+CREATE TABLE Skladnik_uczulajacy (
+    ID integer  NOT NULL,
+    nazwa varchar2(30)  NOT NULL,
+    CONSTRAINT Skladnik_uczulajacy_pk PRIMARY KEY (ID)
+) ;
+
+-- Table: Specjalizacje
+CREATE TABLE Specjalizacje (
+    ID integer  NOT NULL,
+    nazwa varchar2(30)  NOT NULL,
+    CONSTRAINT Specjalizacje_pk PRIMARY KEY (ID)
+) ;
+
+-- Table: Specjalizacje_lekarza
+CREATE TABLE Specjalizacje_lekarza (
+    Lekarze_ID integer  NOT NULL,
+    Specjalizacje_ID integer  NOT NULL,
+    CONSTRAINT Specjalizacje_lekarza_pk PRIMARY KEY (Lekarze_ID,Specjalizacje_ID)
+) ;
+
+-- Table: Uczulenia_pacjenta
+CREATE TABLE Uczulenia_pacjenta (
+    Pacjent_ID integer  NOT NULL,
+    Skladnik_uczulajacy_ID integer  NOT NULL,
+    CONSTRAINT Uczulenia_pacjenta_pk PRIMARY KEY (Pacjent_ID,Skladnik_uczulajacy_ID)
+) ;
+
+-- Table: Wizyta
+CREATE TABLE Wizyta (
+    ID integer  NOT NULL,
+    data date  NOT NULL,
+    zalecenia varchar2(80)  NOT NULL,
+    cena number(5,2)  NOT NULL,
+    Lekarz integer  NOT NULL,
+    Specjalizacja integer  NOT NULL,
+    Pacjent_ID integer  NOT NULL,
+    CONSTRAINT Wizyta_pk PRIMARY KEY (ID)
+) ;
+
+-- Table: eRecepta
+CREATE TABLE eRecepta (
+    ID integer  NOT NULL,
+    Lek_ID integer  NOT NULL,
+    Wizyta_ID integer  NOT NULL,
+    CONSTRAINT eRecepta_pk PRIMARY KEY (ID)
+) ;
+
+-- foreign keys
+-- Reference: Lek_skladnik (table: Lek_skladnik)
+ALTER TABLE Lek_skladnik ADD CONSTRAINT Lek_skladnik
+    FOREIGN KEY (Skladnik_uczulajacy_ID)
+    REFERENCES Skladnik_uczulajacy (ID);
+
+-- Reference: Lek_skladnik_Lek (table: Lek_skladnik)
+ALTER TABLE Lek_skladnik ADD CONSTRAINT Lek_skladnik_Lek
+    FOREIGN KEY (Lek_ID)
+    REFERENCES Lek (ID);
+
+-- Reference: Lekarze_Adres (table: Lekarze)
+ALTER TABLE Lekarze ADD CONSTRAINT Lekarze_Adres
+    FOREIGN KEY (Adres_ID)
+    REFERENCES Adres (ID);
+
+-- Reference: Pacjent_Adres (table: Pacjent)
+ALTER TABLE Pacjent ADD CONSTRAINT Pacjent_Adres
+    FOREIGN KEY (Adres_ID)
+    REFERENCES Adres (ID);
+
+-- Reference: Specjalizacje_lekarza (table: Specjalizacje_lekarza)
+ALTER TABLE Specjalizacje_lekarza ADD CONSTRAINT Specjalizacje_lekarza
+    FOREIGN KEY (Specjalizacje_ID)
+    REFERENCES Specjalizacje (ID);
+
+-- Reference: Specjalizacje_lekarza_Lekarze (table: Specjalizacje_lekarza)
+ALTER TABLE Specjalizacje_lekarza ADD CONSTRAINT Specjalizacje_lekarza_Lekarze
+    FOREIGN KEY (Lekarze_ID)
+    REFERENCES Lekarze (ID);
+
+-- Reference: Uczulenia_Skladnik_uczulajacy (table: Uczulenia_pacjenta)
+ALTER TABLE Uczulenia_pacjenta ADD CONSTRAINT Uczulenia_Skladnik_uczulajacy
+    FOREIGN KEY (Skladnik_uczulajacy_ID)
+    REFERENCES Skladnik_uczulajacy (ID);
+
+-- Reference: Uczulenia_pacjenta_Pacjent (table: Uczulenia_pacjenta)
+ALTER TABLE Uczulenia_pacjenta ADD CONSTRAINT Uczulenia_pacjenta_Pacjent
+    FOREIGN KEY (Pacjent_ID)
+    REFERENCES Pacjent (ID);
+
+-- Reference: Wizyta_Pacjent (table: Wizyta)
+ALTER TABLE Wizyta ADD CONSTRAINT Wizyta_Pacjent
+    FOREIGN KEY (Pacjent_ID)
+    REFERENCES Pacjent (ID);
+
+-- Reference: Wizyta_Specjalizacje_lekarza (table: Wizyta)
+ALTER TABLE Wizyta ADD CONSTRAINT Wizyta_Specjalizacje_lekarza
+    FOREIGN KEY (Lekarz,Specjalizacja)
+    REFERENCES Specjalizacje_lekarza (Lekarze_ID,Specjalizacje_ID);
+
+-- Reference: eRecepta_Lek (table: eRecepta)
+ALTER TABLE eRecepta ADD CONSTRAINT eRecepta_Lek
+    FOREIGN KEY (Lek_ID)
+    REFERENCES Lek (ID);
+
+-- Reference: eRecepta_Wizyta (table: eRecepta)
+ALTER TABLE eRecepta ADD CONSTRAINT eRecepta_Wizyta
+    FOREIGN KEY (Wizyta_ID)
+    REFERENCES Wizyta (ID);
+
+-- End of create.
+
+INSERT INTO ADRES VALUES 
+(1,'LUBLIN','LUBELSKA','15','12');INSERT INTO ADRES VALUES 
+(2,'LUBLIN','LUBELSKA','5','2');INSERT INTO ADRES VALUES 
+(3,'LUBARTOW','LUBELSKA','15','12');INSERT INTO ADRES VALUES 
+(4,'LUBLIN','WARSZAWSKA','12','2');INSERT INTO ADRES VALUES 
+(5,'LUBLIN','WARSZAWSKA','15','3');INSERT INTO ADRES VALUES 
+(6,'LUBARTOW','ZIMNA WODA','5','1');
+
+INSERT INTO PACJENT VALUES 
+(1,'JAN','KOWALSKI','87121285736',1);INSERT INTO PACJENT VALUES 
+(2,'JANINA','KOWALSKA','89111185745',1);INSERT INTO PACJENT VALUES 
+(3,'MAREK','NOWAK','02211286774',2);INSERT INTO PACJENT VALUES 
+(4,'MARIA','NOWAK','05281234587',2);INSERT INTO PACJENT VALUES 
+(5,'LUKASZ','NOWICKI','99121282336',3);
+
+INSERT INTO LEKARZE VALUES
+(1,'LUKASZ','NOWICKI',3, 5000);INSERT INTO LEKARZE VALUES
+(2,'LUCJA','NOWICKA',3, 6000);INSERT INTO LEKARZE VALUES
+(3,'MARIANNA','NAJMAN',4, 6000);INSERT INTO LEKARZE VALUES
+(4,'MARCIN','NAJMAN',6, 7000);INSERT INTO LEKARZE VALUES
+(5,'GRZEGORZ','DOM',5, 1000);
+
+INSERT INTO SPECJALIZACJE VALUES
+(1,'OKULISTA');INSERT INTO SPECJALIZACJE VALUES
+(2,'LARYNGOLOG');INSERT INTO SPECJALIZACJE VALUES
+(3,'DERMATOLOG');INSERT INTO SPECJALIZACJE VALUES
+(4,'KARDIOLOG');INSERT INTO SPECJALIZACJE VALUES
+(5,'STOMATOLOG');
+
+INSERT INTO SPECJALIZACJE_LEKARZA VALUES
+(1,1); INSERT INTO SPECJALIZACJE_LEKARZA VALUES
+(1,3); INSERT INTO SPECJALIZACJE_LEKARZA VALUES
+(2,2); INSERT INTO SPECJALIZACJE_LEKARZA VALUES
+(2,4); INSERT INTO SPECJALIZACJE_LEKARZA VALUES
+(3,4); INSERT INTO SPECJALIZACJE_LEKARZA VALUES
+(4,5); INSERT INTO SPECJALIZACJE_LEKARZA VALUES
+(3,5); INSERT INTO SPECJALIZACJE_LEKARZA VALUES
+(4,4); INSERT INTO SPECJALIZACJE_LEKARZA VALUES
+(5,5); INSERT INTO SPECJALIZACJE_LEKARZA VALUES
+(5,3);
+
+
+INSERT INTO LEK VALUES
+(1,'IBUM','PRZECIWBOLOWY'); INSERT INTO LEK VALUES
+(2,'APAP','PRZECIWBOLOWY'); INSERT INTO LEK VALUES
+(3,'METAFEN','PRZECIWBOLOWY'); INSERT INTO LEK VALUES
+(4,'WZROSTAN','NA WZROST'); INSERT INTO LEK VALUES
+(5,'SKORA 50PLUS','PRZECIWZMARSZCZKOWY'); INSERT INTO LEK VALUES
+(6,'PAXMAX','NA USPOKOJENIE');
+
+
+INSERT INTO skladnik_uczulajacy VALUES
+(1,'IBUPROFEN'); INSERT INTO skladnik_uczulajacy VALUES
+(2,'PARACETAMOL'); INSERT INTO skladnik_uczulajacy VALUES
+(3,'WITAMINA A'); INSERT INTO skladnik_uczulajacy VALUES
+(4,'WITAMINA D'); INSERT INTO skladnik_uczulajacy VALUES
+(5,'PARABELLUM');
+
+
+INSERT INTO lek_skladnik VALUES
+(1,1); INSERT INTO lek_skladnik VALUES
+(2,2); INSERT INTO lek_skladnik VALUES
+(1,3); INSERT INTO lek_skladnik VALUES
+(2,3); INSERT INTO lek_skladnik VALUES
+(4,4); INSERT INTO lek_skladnik VALUES
+(3,5); INSERT INTO lek_skladnik VALUES
+(5,6); 
+
+
+INSERT INTO UCZULENIA_PACJENTA VALUES
+(1,4);INSERT INTO UCZULENIA_PACJENTA VALUES
+(2,4);
+
+
+INSERT INTO WIZYTA VALUES
+(1,'23/01/05','BRAK ZALECEN',100,1,1,1);
+INSERT INTO WIZYTA VALUES
+(2,'23/01/05','WIECEJ SPANIA',150,2,2,2);
+INSERT INTO WIZYTA VALUES
+(3,'23/01/05','BRAC PRZYPISANY LEK RAZ DZIENNIE',100,1,3,3);
+INSERT INTO WIZYTA VALUES
+(4,'23/01/05','BRAK ZALECEN',100,2,4,4);
+INSERT INTO WIZYTA VALUES
+(5,'23/01/06','BRAC PRZYPISANY LEK DWA RAZY DZIENNIE',100,3,5,5);
+
+INSERT INTO ERECEPTA VALUES
+(1,6,2);INSERT INTO ERECEPTA VALUES
+(2,1,2);INSERT INTO ERECEPTA VALUES
+(3,3,3);INSERT INTO ERECEPTA VALUES
+(4,1,3);INSERT INTO ERECEPTA VALUES
+(5,3,5);
+
+
+--End of insert
+
+
+
+--PONIŻSZA PROCEDURA DODAJE LEKARZA DO BAZY
+--RÓWNIEŻ SPRAWDZA CZY DANY LEKARZ NIE JEST JUŻ DODANY DO BAZY
+CREATE OR REPLACE PROCEDURE NOWYLEKARZ
+(v_Imie LEKARZE.IMIE%type,
+v_Nazwisko LEKARZE.NAZWISKO%type,
+v_adres LEKARZE.ADRES_ID%type,
+v_pensja LEKARZE.PENSJA%type)
+IS
+v_id LEKARZE.ID%type := 0;
+v_count INTEGER := 0;
+v_juzJest EXCEPTION;
+V_ujemna EXCEPTION;
+BEGIN
+IF v_pensja<0
+THEN
+RAISE v_ujemna;
+END IF;
+SELECT COUNT(1) INTO v_count FROM LEKARZE
+WHERE IMIE=v_imie AND NAZWISKO=v_Nazwisko AND ADRES_ID = v_adres;
+IF v_count>0
+THEN
+RAISE v_juzJest;
+END IF;
+SELECT MAX(ID) INTO v_id FROM LEKARZE;
+v_id := v_id+1;
+INSERT INTO LEKARZE VALUES (v_id, v_imie, v_nazwisko, v_adres, v_pensja);
+DBMS_OUTPUT.PUT_LINE('Poprawnie dodano lekarza '||v_imie||' '||v_nazwisko);
+EXCEPTION
+WHEN v_juzJest
+THEN
+DBMS_output.put_line('Lekarz o takich danych juz istnieje');
+WHEN v_ujemna
+THEN
+DBMS_output.put_line('Pensja lekarza nie może być ujemna');
+END;
+
+--PONIŻSZA PROCEDURA ZWIĘKSZA (LUB ZMNIEJSZA PRZY WARTOŚCIACH UJEMNYCH
+--PENSJE KAŻDEGO LEKARZA O PODANĄ KWOTĘ
+--W PRZYPADKU UZUPEŁNIENIA DRUGIEGO AGRUMENT PENSJA JEST ZWIEKSZANA DLA
+--LEKARZY KTÓRYCH PENSJA NIE PRZEKRACZA WARTOŚCI DRUGIEGO ARGUMENTU
+
+CREATE OR REPLACE PROCEDURE PODWYZKAKWOTA 
+(v_podwyzka lekarze.pensja%type,
+V_MAX lekarze.pensja%type DEFAULT 1000000)
+IS
+v_IMIE lekarze.IMIE%type;
+v_ID lekarze.ID%type;
+v_NAZWISKO lekarze.NAZWISKO%type;
+v_pensja lekarze.pensja%type;
+
+CURSOR KURSORLEKARZE IS
+SELECT ID, IMIE, NAZWISKO, PENSJA FROM LEKARZE;
+BEGIN
+OPEN KURSORLEKARZE;
+LOOP
+FETCH KURSORLEKARZE INTO V_ID, V_IMIE, V_NAZWISKO, V_PENSJA;
+EXIT WHEN KURSORLEKARZE%NOTFOUND;
+UPDATE LEKARZE 
+SET PENSJA = V_PENSJA + V_PODWYZKA
+WHERE ID = V_ID AND PENSJA <= V_MAX;
+DBMS_OUTPUT.PUT_LINE('ZWIEKSZONO PENSJE LEKARZA '||V_IMIE||' '||V_NAZWISKO||' Z '
+||TO_CHAR(v_pensja)||' DO '|| TO_CHAR(v_pensja+v_podwyzka));
+END LOOP;
+CLOSE KURSORLEKARZE;
+END;
+
+CALL PODWYZKAKWOTA(100,2000);
+
+--PONIŻSZA PROCEDURA ZWIĘKSZA (LUB ZMNIEJSZA PRZY WARTOŚCIACH UJEMNYCH)
+--PENSJE KAŻDEGO LEKARZA PROCENTOWO (ARGUMENTEM JEST LICZBA INTEGER)
+--NP GDY JEST TO 50 TO PENSJA JEST ZWIĘKSZONA O 50%
+--W PRZYPADKU UZUPEŁNIENIA DRUGIEGO AGRUMENT PENSJA JEST ZWIEKSZANA DLA
+--LEKARZY KTÓRYCH PENSJA NIE PRZEKRACZA WARTOŚCI DRUGIEGO ARGUMENTU
+
+CREATE OR REPLACE PROCEDURE PODWYZKAPROCENT 
+(v_podwyzka INTEGER,
+V_MAX lekarze.pensja%type DEFAULT 1000000)
+IS
+v_IMIE lekarze.IMIE%type;
+v_ID lekarze.ID%type;
+v_NAZWISKO lekarze.NAZWISKO%type;
+v_pensja lekarze.pensja%type;
+
+CURSOR kursorLekarze IS
+SELECT ID, IMIE, NAZWISKO, PENSJA FROM LEKARZE;
+BEGIN
+OPEN KURSORLEKARZE;
+LOOP
+FETCH KURSORLEKARZE INTO V_ID, V_IMIE, V_NAZWISKO, V_PENSJA;
+EXIT WHEN KURSORLEKARZE%NOTFOUND;
+UPDATE LEKARZE 
+SET PENSJA = V_PENSJA*(1+V_PODWYZKA/100)
+WHERE ID = V_ID AND PENSJA >= V_MAX;
+DBMS_OUTPUT.PUT_LINE('ZWIEKSZONO PENSJE LEKARZA '||V_IMIE||' '||V_NAZWISKO||' Z '
+||TO_CHAR(v_pensja)||' DO '|| TO_CHAR(v_pensja+v_podwyzka));
+END LOOP;
+CLOSE KURSORLEKARZE;
+END;
+
+--PONIŻSZY WYZWALACZ BLOKUJE MOŻLIWOŚĆ DODANIA RECEPTY
+--DO WIZYTY JEŚLI PACJENT MA UCZULENIE NA KTÓRYKOLWIEK
+--ZE SKŁADNIKÓW LEKU
+
+CREATE OR REPLACE TRIGGER UCZULONY
+BEFORE INSERT OR UPDATE 
+ON ERECEPTA
+FOR EACH ROW
+DECLARE
+V_LICZNIK INTEGER;
+BEGIN
+SELECT COUNT(*) INTO V_LICZNIK FROM UCZULENIA_PACJENTA 
+WHERE PACJENT_ID= (SELECT PACJENT_ID FROM WIZYTA WHERE ID = :NEW.WIZYTA_ID)
+AND
+SKLADNIK_UCZULAJACY_ID IN
+(SELECT SKLADNIK_UCZULAJACY_ID 
+FROM LEK_SKLADNIK WHERE LEK_ID= :NEW.LEK_ID);
+IF V_LICZNIK>0 THEN
+ raise_application_error(-20001, 
+ 'PACJENT MA UCZULENIE NA JEDEN ZE SKLADNIKOW LEKU');
+ELSE
+    DBMS_OUTPUT.PUT_LINE('POMYSLNIE DODANO RECEPTE');
+END IF;
+END;
+
+
+-- 3. LISTA PACJENTOW Z UCZULENIAMI WRAZ Z NAZWAMI LEKOW KTORYCH NIE MOGĄ PRZYJMOWAĆ
+SELECT PACJENT.ID,IMIE,NAZWISKO,NAZWA,LEK_ID FROM PACJENT 
+JOIN UCZULENIA_PACJENTA ON PACJENT.ID = uczulenia_pacjenta.pacjent_id 
+JOIN LEK_SKLADNIK ON LEK_SKLADNIK.SKLADNIK_UCZULAJACY_ID = UCZULENIA_PACJENTA.SKLADNIK_UCZULAJACY_ID
+JOIN LEK ON LEK.ID = LEK_SKLADNIK.LEK_ID;
+
+
+SELECT WIZYTA.ID,IMIE,NAZWISKO FROM WIZYta
+JOIN PACJENT ON PACJENT_ID=PACJENT.ID;
+
+INSERT INTO ERECEPTA VALUES ((1+(SELECT MAX(ID) FROM ERECEPTA)),4,1);
+--PONIZSZY WYZWALACZ BLOKUJE USUNIECIE SPECJALIZACJI LEKARZOWI
+
+CREATE OR REPLACE TRIGGER SPECJALISTA
+BEFORE DELETE
+ON SPECJALIZACJE_LEKARZA
+FOR EACH ROW
+DECLARE
+BEGIN
+
+RAISE_APPLICATION_ERROR(-20001, 'Nie mozna usuwac specjalizacji '||
+' USUNIECIE SPECJALIZACJI O ID '||:OLD.SPECJALIZACJE_ID||
+' LEKARZOWI O ID '||:OLD.LEKARZE_ID|| ' NIE POWIODŁO SIĘ');
+
+END
+
+DELETE FROM SPECJALIZACJE_LEKARZa
+WHERE LEKARZE_ID=1;
+
+SELECT * FROM LEKARZE;
+
+CALL NOWYLEKARZ('LUKASZ','niemiec','3',-4999);
+CALL NOWYLEKARZ('LUKASZ','niemiec','3',4999);
+CALL NOWYLEKARZ('LUKASZ','francuz','3',4999);
+
+CALL PODWYZKAKWOTA(100);
+
+

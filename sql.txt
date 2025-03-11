@@ -1,0 +1,14 @@
+--Z1
+DECLARE @Ile int = (SELECT COUNT(1) FROM T_osoba);
+PRINT('W tabeli jest '+CAST(@Ile AS Varchar)+' Osób');
+--Z2
+DECLARE @Ile int = (SELECT COUNT(1) FROM T_osoba);
+IF (@Ile < 7) 
+	BEGIN;
+	INSERT INTO T_Osoba(Id,Imie,Nazwisko) 
+	SELECT 1 + MAX(Id) ,'Thomas','Theramenes' FROM T_Osoba;
+	PRINT 'mniej';
+	END;
+ELSE
+	PRINT 'niemniej';
+--Z3
